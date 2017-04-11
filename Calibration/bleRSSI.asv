@@ -1,0 +1,28 @@
+function RSSIDat = bleRSSI(tempData)
+%
+% wbcNuclei: Identify Leukocytes based on nulcei.
+%
+% INPUT:    im - image
+%           num - figure number
+% OUTPUT:   [] - figure
+%
+
+tempData = importdata('b1_04in_d.txt');
+b1_04in_d = cell(length(tempData),1);
+for i = 1:length(tempData)
+    ind = find( tempData{i}(posUUID) == UUID);
+    if length(ind) == length(UUID)
+        b1_04in_d{i,1} = tempData{i};
+    end
+end
+clear b1_04in_d_temp i
+
+b1_04in_d = b1_04in_d(~cellfun('isempty',b1_04in_d));
+
+b1_RSSI_04_d = zeros(length(b1_04in_d),1);
+% get RSSI values
+for i = 1:length(b1_04in_d)
+    b1_RSSI_04_d(i,1) = str2double(b1_04in_d{i,1}(posRSSI));
+end
+
+end
