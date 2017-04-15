@@ -10,38 +10,13 @@
 # Last edited April 14, 2017
 
 # Import Libraries
-import math, copy
+import copy, math
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+#from ble_scanner import BLScanner
 from pprint import pprint
 
-# Based on the setting the equation which is based on measurements:
-# Y = AX
-# X = (A'A)^(-1)A'Y
-# Need to choose weighting matrix W. Theory suggests that when the 
-# measurement obtains the inverse of matrix of error variance, the 
-# estimated error variance will be the smallest. 
-
-## Using Weight Circular Alorithum
-# Based on the circular posistioning technique, but introduces a different
-# weight fo each measurement.
-
-# The error in the distance estimation for anchor node i is given by:
-#ei = di - di_avg = sqrt((xi - x)^2 + (yi - y)^2) - di_avg
-
-# Need to minimize the weight least squares error criterion,
-#eps = e'*S^(-1)*e   '
-
-# where S is the covariance matrix of the random vector
-#e = [e1 e2 e3 ........e_N]''
-
-# Assume that the errors ei in the meassurements of the sitances to different
-# reference nodes are independent, S is a diagonal matrix with diagonal 
-# elements [S]ij = Var(ei), thus the error to be minimized is
-
-# eps = e'*S^(-1)*e   ' = sum from i=1 to N of ei^2 / Var(ei)
-#     == sum from i=1 to N of 1// Var(di)
 
 
 # read in data packets from bluetooth beacons
@@ -88,7 +63,7 @@ def RSSIdistance(pckRSSI):
 	return dist
 
 
-def error():
+def error(x,y,distEst):
 	
 	# node locations, z = [x, y]', [m] 
 	b1 = np.array([[0.5],[0.5]]) # beacon 1 
@@ -99,7 +74,7 @@ def error():
 
 	err = float()
 	for i in range(len(b[0])):
-		err += sqrt((b[0,i]-x)**2 + (b[1,i]-y)**2) - 
+		err += sqrt((b[0,i]-x)**2 + (b[1,i]-y)**2) - distEst[i]
 
 
 def main():
@@ -112,7 +87,30 @@ def main():
 	pckRSSI = packetRSSI()
 	d = RSSIdistance(pckRSSI)
 	pckRSSI[:,1] = d[:,0] # replace RSSI values with distances
-	print(pckRSSI)
+	pprint(pckRSSI[:10])
+
+	# large data set every 500ms
+	# from that data set use the median values of each beacon
+
+	# wait 500ms
+	# read pack
+	# choose beacon
+	# median
+
+	dist = np.zeros([len(pckRSSI), 4])
+	for i in range(4):
+		ind = np.where(pckRSSI[:,0]==(i+1))
+		dist[ind,i] = pckRSSI[ind,1]
+
+	distEst = np.zeros([4])
+	for i in range(4):
+		beaconDist = dist[:,i]
+		beaconDist = beaconDist[beaconDist!=0]
+		distEst[i] = np.median(beaconDist)
+
+	print(distEst)
+
+	# iterative least squares for (x,y) that mins error
 
 
 
