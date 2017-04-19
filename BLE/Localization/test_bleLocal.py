@@ -1,5 +1,5 @@
 import numpy as np
-from ble_scanner import BLScanner
+#from ble_scanner import BLScanner
 from time import sleep
 
 
@@ -29,6 +29,42 @@ def distanceEstimate(pckRSSI):
 
 	return distEst
 
+def circleLocal(distEst, x, y):
+
+	# beacon locations
+	b1 = [0,0]
+	b2 = [0, 0.820]
+	b3 = [1.12, 0.820]
+	b4 = [1.12, 0]
+
+	b = [b1, b2, b3, b4]
+
+	# loss function: sum of the squared errors of the distances
+	error = 0;
+	for i in range(len(distEst)):
+		error +=  (sqrt( (b[i][0]- x)**2 + (b[i][1]- x)**2) - distEst[i])**2
+
+def gradientDescent():
+
+	alpha = 0.5 # learning rate
+
+	e_dx = 0.;
+	e_dy = 0.;
+	for i in range(len(distanceEstimate)):
+		e_dx += -2*((b[i][0]-x)*(
+			np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2)-distEst[i])**2)/(
+			np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2))
+		e_dx += -2*((b[i][0]-x)*(
+			np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2)-distEst[i])**2)/(
+			np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2))
+
+	new_x = x - (alpha * e_dx)
+	new_y = y - (alpha * e_dy)
+
+	if 
+	# break when new_x - x is small 
+	# break when
+	gradientDescent		
 
 def main():
 
