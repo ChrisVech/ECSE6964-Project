@@ -17,10 +17,14 @@ from scipy.optimize import minimize
 def beacons():
     
     # beacon locations
-    b1 = [-0.56, -0.41] # [0.0,0.0]
-    b2 = [-0.56, 0.41] # [0.0, 0.820]
-    b3 = [0.56, 0.41] # [1.12, 0.820]
-    b4 = [0.56, -0.41] # [1.120, 0.0]
+    # b1 = [-0.56, -0.41]
+    b1 = [0.0,0.0]
+    # b2 = [-0.56, 0.41]
+    b2 = [0.0, 0.820]
+    # b3 = [0.56, 0.41] 
+    b3 = [1.12, 0.820]
+    # b4 = [0.56, -0.41] 
+    b4 = [1.120, 0.0]
     
     return [b1, b2, b3, b4]
 
@@ -30,7 +34,7 @@ def RSSIdistance(pckRSSI):
 	
 	# tune parameters
 	A = 62 # reference recieved signal strength, [dBm]
-	n = 2. # 1.40 # signal propagation constant
+	n = 1.4 # 1.40 # signal propagation constant
 	dist = np.exp(-A/(10*n) - (pckRSSI[:,1]/(10*n))) # [m]
 	dist = np.reshape(dist,(len(dist),1))
 
@@ -61,21 +65,23 @@ def error(position,distanceEstimate):
     y = position[1]
     d = distanceEstimate
     b = beacons()
+    varD = [0.08024316, 0.11061203, 0.02423527, 0.04135387]
     
     err = 0.0
     
     for i in range(len(d)):
-        err +=  (np.sqrt((b[i][0]- x)**2 + (b[i][1]- y)**2) - d[i])**2
-    
+        # err +=  (np.sqrt((b[i][0]- x)**2 + (b[i][1]- y)**2) - d[i])**2
+    	err += ((np.sqrt((b[i][0]- x)**2 + (b[i][1]- y)**2) - d[i])**2
+    		) / (varD[i])
     return err
 
 
 def main():
 
-	pckSize = 75 # number of readings per estimation
+	pckSize = 100 # number of readings per estimation
 	labBeaconUUID = '525049494F5400000000000000000000'
 	Scanner = BLScanner()
-	testLength = 20 # total number of estimations
+	testLength = 200 # total number of estimations
 	testData = np.zeros([testLength, 4]) # initialize array to store estimates
 
 	# repeat for however many number of desired estimations
@@ -106,7 +112,7 @@ def main():
 				print('\n\nNow estimating (x,y) corrdinate...\n')
 
 				# minimization
-				positionInitial = np.array([0.0, 0.0]) # inital location guess
+				positionInitial = np.array([0.5, 0.5]) # inital location guess
 				positionInitial = np.reshape(positionInitial,\
 					(len(positionInitial),1))
 				
