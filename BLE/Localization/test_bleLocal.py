@@ -29,31 +29,33 @@ def distanceEstimate(pckRSSI):
 
 	return distEst
 
-def circleLocal(distEst, x, y):
+# def circleLocal(distEst, x, y):
 
-	# beacon locations
-	b1 = [0,0]
-	b2 = [0, 0.820]
-	b3 = [1.12, 0.820]
-	b4 = [1.12, 0]
+# 	# beacon locations
+# 	b1 = [0,0]
+# 	b2 = [0, 0.820]
+# 	b3 = [1.12, 0.820]
+# 	b4 = [1.12, 0]
 
-	b = [b1, b2, b3, b4]
+# 	b = [b1, b2, b3, b4]
 
-	# loss function: sum of the squared errors of the distances
-	error = 0;
-	for i in range(len(distEst)):
-		error +=  (sqrt( (b[i][0]- x)**2 + (b[i][1]- x)**2) - distEst[i])**2
+# 	# loss function: sum of the squared errors of the distances
+# 	error = 0;
+# 	for i in range(len(distEst)):
+# 		error +=  (sqrt( (b[i][0]- x)**2 + (b[i][1]- x)**2) - distEst[i])**2
 
-def gradientDescent():
+def gradientDescent(b,distEst,currPos):
+
+	x = currPos[0]
+	y = currPos[1]
 
 	alpha = 0.5 # learning rate
 
 	e_dx = 0.;
 	e_dy = 0.;
-	for i in range(len(distanceEstimate)):
-		e_dx += -2*((b[i][0]-x)*(
-			np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2)-distEst[i])**2)/(
-			np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2))
+	for i in range(len(distEst)):
+		e_dx += -2*((b[i][0]-x)*(np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2)-distEst[i])**2)/(
+		np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2))
 		e_dx += -2*((b[i][0]-x)*(
 			np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2)-distEst[i])**2)/(
 			np.sqrt((b[i][0]-x)**2+(b[i][1]-x)**2))
@@ -61,10 +63,10 @@ def gradientDescent():
 	new_x = x - (alpha * e_dx)
 	new_y = y - (alpha * e_dy)
 
-	if 
-	# break when new_x - x is small 
-	# break when
-	gradientDescent		
+	newPos = np.array([[new_x], [new_y]])
+
+	return newPos
+
 
 def main():
 
@@ -74,10 +76,18 @@ def main():
 	testLength = 20
 	testData = np.zeros([testLength, 4])
 
-	# weighted circular path parameter
-	x_int = float(0)
-	y_int = float(0)
-	alpha = 0.1
+	# # weighted circular path parameter
+	# x_int = float(0)
+	# y_int = float(0)
+	# alpha = 0.1
+
+	# beacon locations
+	b1 = [0.,0.]
+	b2 = [0., 0.820]
+	b3 = [1.12, 0.820]
+	b4 = [1.12, 0.]
+
+	b = [b1, b2, b3, b4]
 
 	for j in range(testLength):
 
@@ -100,14 +110,35 @@ def main():
 
 				print(distEst)
 
+				print('\nNow estimating (x,y) corrdinate...\n')
+
+				
+				tol = 1e-5
+				currPos = [0.,0.] # initalize position estimate
+
+				while true:
+					newPos = gradientDescent(b,distEst,currPos)
+					if abs(newPos-currPos).all()<tol:
+						break
+					else:
+						currPos = newPos
+						print(currPos)
+						print(newPos)
+
+				posEstimate = newPos
+				print('Position Estimate:')
+				print(posEstimate)
+
+
+
 				break
 
 		testData[j,:] = distEst
 		j += 1
 	
-	print('\nSaving Data ... \n')	
-	np.savetxt('test.txt', testData, delimiter=',')   # X is an array
-	print(testData)
+	# print('\nSaving Data ... \n')	
+	# np.savetxt('test.txt', testData, delimiter=',')   # X is an array
+	# print(testData)
 
 if __name__ == "__main__":
 	main()
