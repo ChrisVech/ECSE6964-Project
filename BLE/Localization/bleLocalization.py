@@ -22,7 +22,7 @@ def beacons():
     # b2 = [-0.56, 0.41]
     b2 = [0.0, 0.820]
     # b3 = [0.56, 0.41] 
-    b3 = [1.12, 0.820]
+    b3 = [1.120, 0.820]
     # b4 = [0.56, -0.41] 
     b4 = [1.120, 0.0]
     
@@ -66,14 +66,20 @@ def error(position,distanceEstimate):
     d = distanceEstimate
     b = beacons()
     varD = [0.08024316, 0.11061203, 0.02423527, 0.04135387]
-    
+    #varD = [0.01458598, 0.0101502, 0.00949717, 0.01719393]
+
     err = 0.0
     
     for i in range(len(d)):
         # err +=  (np.sqrt((b[i][0]- x)**2 + (b[i][1]- y)**2) - d[i])**2
-    	err += ((np.sqrt((b[i][0]- x)**2 + (b[i][1]- y)**2) - d[i])**2
-    		) / (varD[i])
+    	err += ((np.sqrt((b[i][0]- x)**2 + (b[i][1]- y)**2) - d[i])**2) / (varD[i])
     return err
+
+# calculate the varience for each estimation attempt
+# def varCalc(distData):
+# 	data = np.array(distData)
+# 	var_d = np.var(distData, dtype=np.float64, axis=0)
+# 	return var_d
 
 
 def main():

@@ -32,10 +32,10 @@ def distanceEstimate(pckRSSI):
 
 def main():
 
-	pckSize = 75
+	pckSize = 40
 	labBeaconUUID = '525049494F5400000000000000000000'
 	Scanner = BLScanner()
-	testLength = 20
+	testLength = 100
 	testData = np.zeros([testLength, 4])
 
 
@@ -49,34 +49,53 @@ def main():
 
 	for j in range(testLength):
 
-		dataPacket = np.zeros([pckSize, 2])
-		i = 0
-		
-		for data in Scanner.scan_all():
-		
-			if data[0] == labBeaconUUID:
-				dataPacket[i,0] = data[2]
-				dataPacket[i,1] = data[4]
-				i +=1
-		
-			if i == pckSize:
+		outBLE = 0
+		inBLE = 0
 
-				d = RSSIdistance(dataPacket)
-				#dataPacket[:,1] = d[:,0] # replace RSSI values with distances
-				if 
+		for IOcnt in range (1,4):
 
-				distEst = distanceEstimate(dataPacket)
+			dataPacket = np.zeros([pckSize, 2])
+			i = 0
+			
+			for data in Scanner.scan_all():
+			
+				if data[0] == labBeaconUUID:
+					dataPacket[i,0] = data[2]
+					dataPacket[i,1] = data[4]
+					i +=1
+			
+				if i == pckSize:
 
-				print(distEst)
+					d = RSSIdistance(dataPacket)
 
-				break
+					#dataPacket[:,1] = d[:,0] # replace RSSI values with distances
 
-		testData[j,:] = distEst
+					distEst = distanceEstimate(dataPacket)
+
+					print(distEst)
+
+					inOut = distEst<=-69
+					inOut = np.sum(inOut)
+
+					smallRSSI = distEst<=-82
+					smallRSSI = np.any(smallRSSI)
+
+					if inOut >= 3 or smallRSSI:
+						outBLE += 1
+					else:
+						inBLE += 1
+
+					if IOcnt == 3:
+						if outBLE > inBLE:
+							print('OUT')
+						else:
+							print('IN')
+
+					break
+
+		#testData[j,:] = distEst
 		j += 1
 	
-	print('\nSaving Data ... \n')	
-	np.savetxt('varCalcData.txt', testData, delimiter=',')   # X is an array
-	print(testData)
 
 if __name__ == "__main__":
 	main()
